@@ -718,7 +718,7 @@ test('aucun clignotement : variation de luminance moyenne entre captures success
   for (let i = 0; i < 8; i++) await call(page, `(j) => j.plant(${150 + i * 180}, 800, ${i % 5})` as unknown as (j: Hooks) => unknown);
   await page.waitForTimeout(1500);
   const analyser = await page.context().newPage();
-  const lumOf = async (jpg: Uint8Array | Buffer) =>
+  const lumOf = async (jpg: PngBuf) =>
     analyser.evaluate(async (b64) => {
       const bmp = await createImageBitmap(await (await fetch('data:image/jpeg;base64,' + b64)).blob());
       const c = document.createElement('canvas');
@@ -730,7 +730,7 @@ test('aucun clignotement : variation de luminance moyenne entre captures success
       let s = 0;
       for (let i = 0; i < d.length; i += 4) s += 0.2126 * d[i]! + 0.7152 * d[i + 1]! + 0.0722 * d[i + 2]!;
       return s / (d.length / 4);
-    }, (jpg as Buffer).toString('base64'));
+    }, (jpg as PngBuf).toString('base64'));
   const series: number[] = [];
   const t0 = Date.now();
   const shoot = async () => series.push(await lumOf(await page.screenshot({ type: 'jpeg', quality: 40 })));

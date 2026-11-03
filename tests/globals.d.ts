@@ -1,3 +1,6 @@
+// Octets d'une capture Playwright (un Buffer de Node) : type local, pour ne pas dépendre de @types/node (absent d'un clone propre).
+type PngBuf = Uint8Array & { toString(encoding?: string): string };
+
 // Déclarations minimales : @types/node n'est pas dans la liste des installations approuvées (J1, J2).
 declare const process: { env: Record<string, string | undefined>; cwd(): string };
 

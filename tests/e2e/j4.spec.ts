@@ -72,7 +72,7 @@ async function plantMany(page: Page, n: number) {
 }
 
 /** Pixels rose / vert / rouge d'une capture (nombre de pixels), pour montrer que la saison change l'image. */
-async function colorCounts(page: Page, png: Buffer) {
+async function colorCounts(page: Page, png: PngBuf) {
   const analyser = await page.context().newPage();
   const r = await analyser.evaluate(async (data) => {
     const bmp = await createImageBitmap(await (await fetch('data:image/png;base64,' + data)).blob());

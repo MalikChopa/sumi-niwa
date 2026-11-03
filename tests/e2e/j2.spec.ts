@@ -20,7 +20,7 @@ interface Ink {
 }
 
 /** Analyse une capture (PNG) dans une page vierge : pixels d'encre d'une zone donnée en uf. */
-async function inkIn(analyser: Page, png: Buffer, zone: { x0: number; y0: number; x1: number; y1: number }): Promise<Ink> {
+async function inkIn(analyser: Page, png: PngBuf, zone: { x0: number; y0: number; x1: number; y1: number }): Promise<Ink> {
   return analyser.evaluate(
     async ({ data, zone, px }) => {
       const bmp = await createImageBitmap(await (await fetch('data:image/png;base64,' + data)).blob());

@@ -26,7 +26,7 @@ const plant = (page: Page, x: number, y: number, e: number) => page.evaluate(([x
 const metrics = (page: Page) => J(page, () => (window as any).__jardin.metrics());
 
 /** Statistiques de pixels d'une capture : part de blancs purs, couleur moyenne, centroïde des pixels sombres d'une zone (uf). */
-async function pixels(page: Page, png: Buffer, zone?: { x0: number; y0: number; x1: number; y1: number }) {
+async function pixels(page: Page, png: PngBuf, zone?: { x0: number; y0: number; x1: number; y1: number }) {
   const analyser = await page.context().newPage();
   const r = await analyser.evaluate(
     async ({ data, zone, px }) => {
