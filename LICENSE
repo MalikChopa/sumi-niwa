@@ -1,0 +1,20 @@
+Copyright (c) 2026 MalikChopa. All rights reserved. / Tous droits réservés.
+
+This repository is published so that it can be read and the site can be used
+in a web browser. No licence is granted to copy, modify, redistribute, host
+or reuse the source code, the drawings, the texts or the generated artwork
+without prior written permission from the copyright holder.
+
+Ce dépôt est public pour pouvoir être lu et pour que le site puisse être
+utilisé dans un navigateur. Aucune licence n'est accordée pour copier,
+modifier, redistribuer, héberger ou réutiliser le code source, les dessins,
+les textes ou les images générées sans l'accord écrit préalable du titulaire
+des droits.
+
+Third-party components keep their own licences. They are listed in
+THIRD_PARTY.md and, for what is shipped with the page, in LICENSES.txt.
+Les composants tiers gardent leurs propres licences : voir THIRD_PARTY.md et,
+pour ce qui est livré avec la page, LICENSES.txt.
+
+GitHub's Terms of Service allow other users of GitHub to view and fork
+public repositories on GitHub; that does not grant any further right.

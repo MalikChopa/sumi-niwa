@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Jardin d'encre — maquette</title>
+<style>
+:root{--washi:#F3ECDD;--sumi:#1E2430;--sakura:#E8A5B5;--ete:#8FB87A;--erable:#B8402F;--hiver:#AEB8C4}
+html,body{margin:0;height:100%;background:var(--washi);color:var(--sumi);font-family:Georgia,"Times New Roman",serif;overflow:hidden}
+.stage{position:fixed;inset:0}
+svg.scene{position:absolute;inset:0;width:100%;height:100%;display:none}
+svg.scene.on{display:block}
+/* chrome de la maquette (hors produit) */
+.chrome{position:fixed;top:14px;left:14px;z-index:10;font:12px/1.4 system-ui,sans-serif;max-width:min(560px,calc(100vw - 28px))}
+.tabs{display:inline-flex;gap:4px;padding:4px;border:1px solid rgba(30,36,48,.18);border-radius:999px;background:rgba(243,236,221,.8)}
+.tabs button{font:inherit;border:0;background:none;color:var(--sumi);padding:5px 12px;border-radius:999px;cursor:pointer;opacity:.7}
+.tabs button[aria-selected="true"]{background:var(--sumi);color:var(--washi);opacity:1}
+.tabs button:focus-visible{outline:2px solid var(--erable);outline-offset:2px}
+.cap{margin:8px 0 0;padding:8px 12px;border-radius:12px;background:rgba(243,236,221,.82);color:rgba(30,36,48,.78)}
+/* interface du produit (écran 2) */
+#ui{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);display:none;align-items:center;gap:4px;padding:6px 12px;border:1px solid rgba(30,36,48,.14);border-radius:999px;background:rgba(243,236,221,.55);z-index:5}
+#ui.on{display:flex}
+#ui button{width:36px;height:36px;border:0;background:none;color:rgba(30,36,48,.78);cursor:pointer;border-radius:50%;display:grid;place-items:center;padding:0}
+#ui button:hover,#ui button:focus-visible{background:rgba(30,36,48,.07);outline:none}
+#ui svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+#ui .seasons{display:flex;gap:7px;padding:0 10px;align-items:center}
+#ui .seasons i{width:9px;height:9px;border-radius:50%;border:1.2px solid rgba(30,36,48,.55);display:block}
+#ui .seasons i.cur{background:var(--sakura);border-color:var(--sumi)}
+#ui .lang{font:11px system-ui,sans-serif;letter-spacing:.08em;padding:0 8px;color:rgba(30,36,48,.65)}
+#ui .sep{width:1px;height:20px;background:rgba(30,36,48,.15);margin:0 4px}
+@keyframes pulse{0%{transform:scale(1);opacity:.5}100%{transform:scale(3.4);opacity:0}}
+.pulse{transform-box:fill-box;transform-origin:center;animation:pulse 3.2s ease-out infinite}
+.pulse.b{animation-delay:1.6s}
+@media (prefers-reduced-motion:reduce){.pulse{animation:none;opacity:.25}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <filter id="brush" filterUnits="userSpaceOnUse" x="0" y="0" width="1600" height="900">
+      <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="3" seed="8" result="t"/>
+      <feDisplacementMap in="SourceGraphic" in2="t" scale="5" xChannelSelector="R" yChannelSelector="G" result="d"/>
+      <feGaussianBlur in="d" stdDeviation="0.35"/>
+    </filter>
+    <filter id="wet" filterUnits="userSpaceOnUse" x="0" y="0" width="1600" height="900"><feGaussianBlur stdDeviation="9"/></filter>
+    <filter id="mist" filterUnits="userSpaceOnUse" x="0" y="0" width="1600" height="900"><feGaussianBlur stdDeviation="32"/></filter>
+    <filter id="grain" filterUnits="userSpaceOnUse" x="0" y="0" width="1600" height="900">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="3" result="n"/>
+      <feColorMatrix in="n" type="matrix" values="0 0 0 0 0.42  0 0 0 0 0.35  0 0 0 0 0.25  0.7 0 0 0 -0.2"/>
+    </filter>
+    <filter id="fibers" filterUnits="userSpaceOnUse" x="0" y="0" width="1600" height="900">
+      <feTurbulence type="fractalNoise" baseFrequency="0.012 0.3" numOctaves="2" seed="11" result="n"/>
+      <feColorMatrix in="n" type="matrix" values="0 0 0 0 0.55  0 0 0 0 0.47  0 0 0 0 0.33  0.9 0 0 0 -0.3"/>
+    </filter>
+    <radialGradient id="vignette" cx="50%" cy="48%" r="75%">
+      <stop offset="62%" stop-color="#6b5a3a" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#6b5a3a" stop-opacity=".22"/>
+    </radialGradient>
+  </defs>
+</svg>
+
+<div class="chrome">
+  <div class="tabs" role="tablist" aria-label="Écrans de la maquette">
+    <button role="tab" id="t1" aria-selected="true" data-s="1">1 · Feuille vide</button>
+    <button role="tab" id="t2" aria-selected="false" data-s="2">2 · Jardin en cours</button>
+    <button role="tab" id="t3" aria-selected="false" data-s="3">3 · Automne</button>
+  </div>
+  <p class="cap" id="cap" aria-live="polite"></p>
+</div>
+
+<div class="stage" id="stage"></div>
+
+<div id="ui" role="toolbar" aria-label="Contrôles du jardin">
+  <button aria-label="Planter (clic ; maintien pour changer d'espèce)" title="Planter"><svg viewBox="0 0 24 24"><path d="M12 21v-9M12 13c0-4 3-6 6-6 0 4-2 6-6 6M12 15c0-3-2-5-5-5 0 3 2 5 5 5"/></svg></button>
+  <button aria-label="Souffler (le vent suit la souris)" title="Vent"><svg viewBox="0 0 24 24"><path d="M3 9h11a3 3 0 1 0-3-3M3 14h15a3 3 0 1 1-3 3M3 19h7"/></svg></button>
+  <div class="seasons" role="group" aria-label="Saison : printemps"><i class="cur"></i><i></i><i></i><i></i></div>
+  <span class="sep"></span>
+  <button aria-label="Son (désactivé)" title="Son"><svg viewBox="0 0 24 24"><path d="M4 10v4h4l5 4V6l-5 4zM17 9c1.5 1.5 1.5 4.5 0 6"/></svg></button>
+  <button aria-label="Garder ce jardin (PNG)" title="Garder ce jardin"><svg viewBox="0 0 24 24"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg></button>
+  <button aria-label="Copier le lien" title="Copier le lien"><svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></button>
+  <button aria-label="Nouvelle feuille" title="Nouvelle feuille"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6zM15 3v4h4"/></svg></button>
+  <button aria-label="Plein écran" title="Plein écran"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+  <span class="lang">FR · EN</span>
+</div>
+
+<script>
+(function(){
+const NS='http://www.w3.org/2000/svg';
+const SUMI='#1E2430',WASHI='#F3ECDD',SAKURA='#E8A5B5',ETE='#8FB87A',ERABLE='#B8402F',HIVER='#AEB8C4';
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e;}
+function bez(p0,p1,p2,n){const o=[];for(let i=0;i<=n;i++){const t=i/n,u=1-t;o.push([u*u*p0[0]+2*u*t*p1[0]+t*t*p2[0],u*u*p0[1]+2*u*t*p1[1]+t*t*p2[1]]);}return o;}
+function ribbon(g,pts,wfn,fill,op){
+  const L=[],R=[];
+  for(let i=0;i<pts.length;i++){
+    const p=pts[i],a=pts[Math.max(0,i-1)],b=pts[Math.min(pts.length-1,i+1)];
+    let dx=b[0]-a[0],dy=b[1]-a[1];const d=Math.hypot(dx,dy)||1;dx/=d;dy/=d;
+    const w=wfn(i/(pts.length-1))/2;
+    L.push([p[0]-dy*w,p[1]+dx*w]);R.push([p[0]+dy*w,p[1]-dx*w]);
+  }
+  const seq=L.concat(R.reverse());
+  const d='M'+seq.map(q=>q[0].toFixed(1)+','+q[1].toFixed(1)).join('L')+'Z';
+  return el('path',{d:d,fill:fill,'fill-opacity':op},g);
+}
+function leaf(g,x,y,ang,len,wid,fill,op,stroke){
+  const c=Math.cos(ang),s=Math.sin(ang),P=(u,v)=>[x+u*c-v*s,y+u*s+v*c];
+  const a=P(len*.5,-wid*2),b=P(len,0),d=P(len*.5,wid*2);
+  const at={d:`M${x.toFixed(1)},${y.toFixed(1)}Q${a[0].toFixed(1)},${a[1].toFixed(1)} ${b[0].toFixed(1)},${b[1].toFixed(1)}Q${d[0].toFixed(1)},${d[1].toFixed(1)} ${x.toFixed(1)},${y.toFixed(1)}Z`,fill:fill,'fill-opacity':op};
+  if(stroke){at.stroke=stroke;at['stroke-width']=1.1;at['stroke-opacity']=.4;}
+  return el('path',at,g);
+}
+function blossom(g,x,y,r,col,op,rot){
+  for(let k=0;k<5;k++){const a=rot+k*Math.PI*2/5;el('circle',{cx:(x+Math.cos(a)*r*.55).toFixed(1),cy:(y+Math.sin(a)*r*.55).toFixed(1),r:(r*.52).toFixed(1),fill:col,'fill-opacity':op,stroke:SUMI,'stroke-opacity':.22,'stroke-width':.8},g);}
+  el('circle',{cx:x,cy:y,r:r*.18,fill:SUMI,'fill-opacity':.7},g);
+}
+function maple(g,x,y,r,rot,col,op){
+  let d='';for(let i=0;i<10;i++){const a=rot+i*Math.PI/5,rr=i%2?r*.42:r;d+=(i?'L':'M')+(x+Math.cos(a)*rr).toFixed(1)+','+(y+Math.sin(a)*rr).toFixed(1);}
+  el('path',{d:d+'Z',fill:col,'fill-opacity':op,stroke:SUMI,'stroke-opacity':.25,'stroke-width':.8,'stroke-linejoin':'round'},g);
+}
+function bamboo(g,wet,x,y0,h,r,accent){
+  const nodes=Math.max(4,Math.round(h/92)),segH=h/nodes,lean=(r()-.5)*46;
+  let cx=x,cy=y0;
+  for(let i=0;i<nodes;i++){
+    const nx=x+lean*Math.pow((i+1)/nodes,1.5)+(r()-.5)*5,ny=y0-segH*(i+1);
+    const w0=24*(1-i/nodes*.45),w1=24*(1-(i+1)/nodes*.45),seg=[];
+    for(let k=0;k<=8;k++){const t=k/8;seg.push([cx+(nx-cx)*t,cy+(ny-cy)*t-(k===0?-5:0)+(k===8?5:0)]);}
+    ribbon(g,seg,t=>(w0+(w1-w0)*t)*(.88+.12*Math.sin(Math.PI*t)),SUMI,.8);
+    const hl=seg.map(p=>[p[0]-w0*.22,p[1]]);ribbon(g,hl,()=>3,WASHI,.28);
+    el('path',{d:`M${(nx-w1*.62).toFixed(1)},${ny.toFixed(1)}Q${nx.toFixed(1)},${(ny+3).toFixed(1)} ${(nx+w1*.62).toFixed(1)},${ny.toFixed(1)}`,fill:'none',stroke:SUMI,'stroke-width':3.2,'stroke-linecap':'round','stroke-opacity':.9},g);
+    if(i>=nodes*.45&&i<nodes-1&&r()<.85){
+      const side=r()<.5?-1:1,len=70+r()*60,bp=bez([nx,ny],[nx+side*len*.5,ny-18],[nx+side*len,ny-40-r()*20],10);
+      ribbon(g,bp,t=>5*(1-t*.7),SUMI,.8);
+      const e=bp[10],n=3+Math.floor(r()*3);
+      for(let k=0;k<n;k++){leaf(g,e[0],e[1],(side>0?0:Math.PI)+(k-(n-1)/2)*.42+(r()-.5)*.15+0.35,95+r()*45,10+r()*5,k%3===2?accent:SUMI,k%3===2?.38:.72);}
+    }
+    cx=nx;cy=ny;
+  }
+  const n=5;for(let k=0;k<n;k++)leaf(g,cx,cy,-Math.PI/2+(k-(n-1)/2)*.5,90+r()*40,10+r()*4,k%3===2?accent:SUMI,k%3===2?.38:.72);
+  return [cx,cy];
+}
+function grass(g,x,y,n,h,r,col){
+  for(let i=0;i<n;i++){
+    const bx=x+(r()-.5)*46,hh=h*(.55+r()*.6),dir=(r()-.5)*2,
+          p=bez([bx,y],[bx+dir*hh*.1,y-hh*.6],[bx+dir*hh*.55,y-hh],12);
+    ribbon(g,p,t=>6*(1-t),col||SUMI,.62+r()*.2);
+  }
+}
+function rock(g,cx,cy,rx,ry,r){
+  const pts=[];for(let i=0;i<14;i++){const a=i/14*Math.PI*2,k=.86+r()*.28;pts.push([cx+Math.cos(a)*rx*k,cy+Math.sin(a)*ry*k*(Math.sin(a)<0?1.1:.7)]);}
+  let d='M'+((pts[0][0]+pts[13][0])/2).toFixed(1)+','+((pts[0][1]+pts[13][1])/2).toFixed(1);
+  for(let i=0;i<14;i++){const p=pts[i],q=pts[(i+1)%14];d+='Q'+p[0].toFixed(1)+','+p[1].toFixed(1)+' '+((p[0]+q[0])/2).toFixed(1)+','+((p[1]+q[1])/2).toFixed(1);}
+  el('path',{d:d+'Z',fill:SUMI,'fill-opacity':.1},g);
+  el('path',{d:d+'Z',fill:'none',stroke:SUMI,'stroke-opacity':.55,'stroke-width':3.2,'stroke-dasharray':'60 8 24 6 90 5','stroke-linecap':'round'},g);
+  const sh=[];for(let i=0;i<=16;i++){const a=.15*Math.PI+i/16*.7*Math.PI;sh.push([cx+Math.cos(a)*rx*.92,cy+Math.sin(a)*ry*.62]);}
+  ribbon(g,sh,t=>4+16*Math.sin(Math.PI*t),SUMI,.3);
+  for(let i=0;i<4;i++)el('circle',{cx:cx-rx*.4+r()*rx*.8,cy:cy-ry*.5+r()*ry*.3,r:2+r()*2.5,fill:SUMI,'fill-opacity':.45},g);
+}
+function peony(g,x,y,R,r){
+  for(let k=0;k<3;k++){const cnt=7-k,rad=R*(1-.3*k);
+    for(let i=0;i<cnt;i++){const a=i/cnt*Math.PI*2+r()*.4+k*.5;leaf(g,x,y,a,rad,rad*.3,SAKURA,.55-k*.05,SUMI);}}
+  el('circle',{cx:x,cy:y,r:R*.12,fill:SUMI,'fill-opacity':.75},g);
+}
+function groundLine(g,y,r,op){
+  const pts=[];for(let x=40;x<=1560;x+=40)pts.push([x,y+Math.sin(x*.011)*5+(r()-.5)*5]);
+  ribbon(g,pts,t=>3+7*Math.abs(Math.sin(t*7+1)),SUMI,op);
+}
+function mist(bg,r,list){
+  list.forEach(m=>el('ellipse',{cx:m[0],cy:m[1],rx:m[2],ry:m[3],fill:SUMI,'fill-opacity':m[4],filter:'url(#mist)'},bg));
+}
+function petals(g,n,r,col,xr,yr,sz){
+  for(let i=0;i<n;i++){
+    const x=xr[0]+r()*(xr[1]-xr[0]),y=yr[0]+r()*(yr[1]-yr[0]);
+    el('ellipse',{cx:x.toFixed(1),cy:y.toFixed(1),rx:sz*(.8+r()*.5),ry:sz*.55,fill:col,'fill-opacity':.55+r()*.35,transform:`rotate(${(r()*180).toFixed(0)} ${x.toFixed(1)} ${y.toFixed(1)})`},g);
+  }
+}
+function blots(g,wet,n,r,col,xr,yr,sz){
+  for(let i=0;i<n;i++){
+    const x=xr[0]+r()*(xr[1]-xr[0]),y=yr[0]+r()*(yr[1]-yr[0]),s=sz*(.6+r()*.9);
+    el('circle',{cx:x.toFixed(1),cy:y.toFixed(1),r:(s*2.6).toFixed(1),fill:col,'fill-opacity':.12,filter:'url(#wet)'},wet);
+    el('ellipse',{cx:x.toFixed(1),cy:y.toFixed(1),rx:s,ry:s*.6,fill:col,'fill-opacity':.55,transform:`rotate(${(r()*180).toFixed(0)} ${x.toFixed(1)} ${y.toFixed(1)})`},g);
+  }
+}
+function trail(g,pts,op){
+  let d='M'+pts[0].join(',');
+  for(let i=1;i<pts.length-1;i++){d+='Q'+pts[i].join(',')+' '+((pts[i][0]+pts[i+1][0])/2)+','+((pts[i][1]+pts[i+1][1])/2);}
+  d+='L'+pts[pts.length-1].join(',');
+  el('path',{d:d,fill:'none',stroke:SUMI,'stroke-opacity':op,'stroke-width':1.3,'stroke-linecap':'round'},g);
+}
+function branch(o,x,y,ang,len,w,depth){
+  const r=o.r,g=o.g,n=16,pts=[];let a=ang,cx=x,cy=y;const bend=(r()-.5)*.8;
+  for(let i=0;i<=n;i++){pts.push([cx,cy]);a+=bend/n+(r()-.5)*.05;cx+=Math.cos(a)*len/n;cy+=Math.sin(a)*len/n;}
+  ribbon(g,pts,t=>w*(1-t*.65),SUMI,.86);
+  ribbon(g,pts.slice(2,n-2),()=>Math.max(1.2,w*.16),WASHI,.2);
+  if(depth>=1)for(let k=0;k<3;k++)if(r()<o.prob){const p=pts[2+Math.floor(r()*(n-3))];o.deco(p[0]+(r()-.5)*14,p[1]+(r()-.5)*14);}
+  const end=pts[n];
+  if(depth<o.maxDepth){
+    for(let k=0;k<3;k++){
+      if(depth>=2&&r()<o.cut)continue;
+      const side=k%2?1:-1,from=k===2?end:pts[Math.floor(n*(.45+.25*k))];
+      branch(o,from[0],from[1],a+(k===2?(r()-.5)*.3:side*(.4+r()*.5)),len*(.62+r()*.14),w*.6,depth+1);
+    }
+  }else{o.deco(end[0],end[1]);if(o.wet)o.wet(end[0],end[1]);}
+}
+function layers(svg,id){
+  const bg=el('g',{},svg);
+  el('rect',{width:1600,height:900,fill:WASHI},bg);
+  const wet=el('g',{},svg);
+  const ink=el('g',{filter:'url(#brush)'},svg);
+  return {bg:bg,wet:wet,ink:ink};
+}
+function paper(svg){
+  el('rect',{width:1600,height:900,filter:'url(#fibers)','style':'mix-blend-mode:multiply',opacity:.55},svg);
+  el('rect',{width:1600,height:900,filter:'url(#grain)','style':'mix-blend-mode:multiply',opacity:.7},svg);
+  el('rect',{width:1600,height:900,fill:'url(#vignette)'},svg);
+}
+function mk(id){
+  const svg=el('svg',{viewBox:'0 0 1600 900',preserveAspectRatio:'xMidYMid slice',class:'scene',id:'s'+id,role:'img'},document.getElementById('stage'));
+  return svg;
+}
+function seal(svg,x,y){
+  el('rect',{x:x,y:y,width:44,height:44,rx:4,fill:ERABLE,'fill-opacity':.88,transform:`rotate(-3 ${x+22} ${y+22})`},svg);
+  const t=el('text',{x:x+22,y:y+33,'text-anchor':'middle','font-size':28,fill:WASHI,'font-family':'"Yu Mincho","MS Mincho","Noto Serif JP",serif'},svg);t.textContent='庭';
+}
+
+/* ÉCRAN 1 : feuille vide */
+(function(){
+  const svg=mk(1);svg.setAttribute('aria-label','Feuille de papier washi vide avec une graine d\'encre au centre');
+  const L=layers(svg);const r=rng(101);
+  mist(L.bg,r,[[420,300,420,110,.035],[1220,640,480,120,.03]]);
+  el('circle',{class:'pulse',cx:800,cy:430,r:8,fill:'none',stroke:SUMI,'stroke-opacity':.5,'stroke-width':1.4},L.bg);
+  el('circle',{class:'pulse b',cx:800,cy:430,r:8,fill:'none',stroke:SUMI,'stroke-opacity':.5,'stroke-width':1.4},L.bg);
+  el('circle',{cx:800,cy:430,r:20,fill:SUMI,'fill-opacity':.1,filter:'url(#wet)'},L.wet);
+  el('ellipse',{cx:800,cy:430,rx:8,ry:9.5,fill:SUMI,'fill-opacity':.9},L.ink);
+  el('path',{d:'M806,421 Q812,415 810,408',fill:'none',stroke:SUMI,'stroke-width':2,'stroke-linecap':'round','stroke-opacity':.8},L.ink);
+  const t=el('text',{x:800,y:500,'text-anchor':'middle','font-size':21,'font-style':'italic','letter-spacing':'.14em',fill:SUMI,'fill-opacity':.55,'font-family':'Georgia,serif'},svg);t.textContent='Clique pour planter';
+  const t2=el('text',{x:800,y:530,'text-anchor':'middle','font-size':15,'font-style':'italic','letter-spacing':'.18em',fill:SUMI,'fill-opacity':.35,'font-family':'Georgia,serif'},svg);t2.textContent='Click to plant';
+  seal(svg,1500,820);
+  paper(svg);
+})();
+
+/* ÉCRAN 2 : jardin en cours (printemps) */
+(function(){
+  const svg=mk(2);svg.setAttribute('aria-label','Jardin au printemps en cours de croissance : bambou, branche de cerisier, pivoine, herbes et rocher');
+  const L=layers(svg);const r=rng(202);
+  mist(L.bg,r,[[500,250,520,120,.05],[1180,300,420,90,.04],[800,720,700,60,.04]]);
+  groundLine(L.ink,792,r,.1);groundLine(L.ink,805,r,.05);
+  rock(L.ink,1010,760,110,52,r);
+  grass(L.ink,1190,790,6,100,r);grass(L.ink,330,792,7,92,r);grass(L.ink,700,790,6,70,r);grass(L.ink,1420,792,5,84,r,'#4d5a45');
+  const tip=bamboo(L.ink,L.wet,1300,792,470,r,ETE);
+  el('circle',{cx:tip[0],cy:tip[1]-6,r:34,fill:SUMI,'fill-opacity':.16,filter:'url(#wet)'},L.wet);
+  bamboo(L.ink,L.wet,1480,792,300,r,ETE);
+  const sak={r:r,g:L.ink,maxDepth:3,prob:.55,cut:.4,
+    deco:(x,y)=>{if(r()<.8)blossom(L.ink,x,y,7+r()*5,SAKURA,.82,r()*6);if(r()<.25)blossom(L.ink,x+9,y+6,5,SAKURA,.7,r()*6);},
+    wet:(x,y)=>el('circle',{cx:x,cy:y,r:22,fill:SUMI,'fill-opacity':.13,filter:'url(#wet)'},L.wet)};
+  branch(sak,190,800,-1.2,300,30,0);
+  peony(L.ink,600,745,46,r);
+  leaf(L.ink,600,790,-1.9,70,12,SUMI,.55);leaf(L.ink,603,792,-1.2,64,12,SUMI,.55);
+  // pétales emportés par le vent
+  petals(L.ink,26,r,SAKURA,[420,1100],[150,520],7);
+  [[[420,420],[560,380],[700,420],[860,360],[990,330]],[[380,250],[520,215],[650,255],[800,205]],[[600,560],[760,520],[900,560],[1060,500]]]
+    .forEach((p,i)=>trail(L.ink,p,.14-i*.02));
+  // curseur-vent
+  el('circle',{cx:900,cy:320,r:11,fill:'none',stroke:SUMI,'stroke-opacity':.55,'stroke-width':1.5},svg);
+  el('circle',{cx:900,cy:320,r:2.4,fill:SUMI,'fill-opacity':.7},svg);
+  el('circle',{cx:900,cy:320,r:36,fill:'none',stroke:SUMI,'stroke-opacity':.12,'stroke-width':1,'stroke-dasharray':'3 6'},svg);
+  // jauge de maintien (choix de l'espèce)
+  const gx=820,gy=640;
+  el('circle',{cx:gx,cy:gy,r:30,fill:WASHI,'fill-opacity':.5,stroke:SUMI,'stroke-opacity':.2,'stroke-width':1.2},svg);
+  el('path',{d:`M${gx},${gy-30}A30 30 0 0 1 ${gx+28.5},${gy+9.3}`,fill:'none',stroke:SAKURA,'stroke-width':3.2,'stroke-linecap':'round'},svg);
+  for(let k=0;k<5;k++){const a=-Math.PI/2+k*Math.PI*2/5;el('circle',{cx:(gx+Math.cos(a)*44).toFixed(1),cy:(gy+Math.sin(a)*44).toFixed(1),r:k===2?4.4:3,fill:SUMI,'fill-opacity':k===2?.85:.28},svg);}
+  const g1=el('text',{x:gx,y:gy+78,'text-anchor':'middle','font-size':15,'font-style':'italic',fill:SUMI,'fill-opacity':.7,'letter-spacing':'.08em'},svg);g1.textContent='Herbes';
+  const g2=el('text',{x:gx,y:gy+97,'text-anchor':'middle','font-size':11,fill:SUMI,'fill-opacity':.42,'letter-spacing':'.06em','font-family':'system-ui,sans-serif'},svg);g2.textContent='maintenir pour changer d\'espèce';
+  paper(svg);
+})();
+
+/* ÉCRAN 3 : jardin plein, automne, sans interface */
+(function(){
+  const svg=mk(3);svg.setAttribute('aria-label','Jardin plein en automne : bambous, branche d\'érable aux feuilles rouges, rochers, feuilles tombées');
+  const L=layers(svg);const r=rng(303);
+  mist(L.bg,r,[[420,330,560,140,.06],[1250,260,500,110,.05],[800,730,760,70,.06]]);
+  groundLine(L.ink,790,r,.12);groundLine(L.ink,806,r,.06);groundLine(L.ink,822,r,.04);
+  // feuilles tombées au sol, avec halo d'encre humide
+  blots(L.ink,L.wet,34,r,ERABLE,[90,1520],[800,870],7);
+  blots(L.ink,L.wet,10,r,SUMI,[90,1520],[805,870],5);
+  rock(L.ink,380,772,128,56,r);rock(L.ink,1060,780,86,40,r);rock(L.ink,1200,790,48,24,r);
+  grass(L.ink,640,792,7,100,r);grass(L.ink,880,792,6,76,r);grass(L.ink,1330,792,7,92,r,'#5a4636');grass(L.ink,170,794,6,88,r);
+  bamboo(L.ink,L.wet,1480,796,620,r,ERABLE);
+  bamboo(L.ink,L.wet,1385,796,500,r,ERABLE);
+  bamboo(L.ink,L.wet,1555,796,380,r,ERABLE);
+  const col=['#B8402F','#9C3426','#CC5A3A'];
+  const map={r:r,g:L.ink,maxDepth:3,prob:.7,cut:.3,
+    deco:(x,y)=>{maple(L.ink,x,y,12+r()*9,r()*6.28,col[Math.floor(r()*3)],.88);if(r()<.4)maple(L.ink,x+14,y+9,9,r()*6.28,col[Math.floor(r()*3)],.8);}};
+  branch(map,-40,150,.1,430,24,0);
+  // feuilles en l'air
+  const arr=[];for(let i=0;i<46;i++){const x=300+r()*1100,y=140+r()*620;maple(L.ink,x,y,8+r()*8,r()*6.28,col[Math.floor(r()*3)],.55+r()*.4);arr.push([x,y]);}
+  [[[260,300],[420,330],[600,300],[780,360],[930,420]],[[520,520],[690,490],[840,540],[1020,520]],[[900,200],[1040,230],[1160,200],[1300,260]]]
+    .forEach((p,i)=>trail(L.ink,p,.12-i*.02));
+  seal(svg,1500,70);
+  paper(svg);
+})();
+
+/* navigation */
+const caps={
+  1:"Écran 1 — Feuille vide. Une graine d'encre pulse, aucune interface visible ; les icônes apparaissent au mouvement de la souris. Texte : français et anglais.",
+  2:"Écran 2 — Jardin en cours (printemps). Bambou et cerisier encore en croissance (encre humide aux pointes), vent sous la souris, jauge de maintien pour choisir l'espèce, barre d'icônes visible.",
+  3:"Écran 3 — Jardin plein en automne, sans interface : c'est ce que contiendrait l'export PNG. Feuilles d'érable, taches d'encre au sol, bambous, rochers."
+};
+function show(n){
+  document.querySelectorAll('svg.scene').forEach(s=>s.classList.toggle('on',s.id==='s'+n));
+  document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.s==n)));
+  document.getElementById('cap').textContent=caps[n];
+  document.getElementById('ui').classList.toggle('on',n==2);
+  try{location.hash='e'+n;}catch(e){}
+}
+document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>show(+b.dataset.s)));
+document.addEventListener('keydown',e=>{if(e.key==='1'||e.key==='2'||e.key==='3')show(+e.key);});
+const m=/^#e([123])$/.exec(location.hash);show(m?+m[1]:1);
+})();
+</script>
+</body>
+</html>

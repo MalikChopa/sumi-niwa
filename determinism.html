@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Jardin d'encre : déterminisme (page de test)</title>
+<style>
+  body{margin:2rem;background:#F3ECDD;color:#1E2430;font:14px/1.5 ui-monospace,Consolas,monospace}
+  h1{font:normal 1.3rem Georgia,serif}
+  table{border-collapse:collapse}
+  td,th{padding:.2rem .8rem;border-bottom:1px solid rgba(30,36,48,.15);text-align:left;vertical-align:top}
+</style>
+</head>
+<body>
+<h1>Déterminisme des plantes (J2, page de test, retirée ou inerte au J6)</h1>
+<p>Hash FNV-1a des tampons générés pour des jardins fixes (<code>src/core/determinism-cases.ts</code>), à comparer à Node (<code>tests/golden/plants.json</code>) et entre navigateurs.</p>
+<p id="engine"></p>
+<table id="out"><thead><tr><th>cas</th><th>gardenHash</th><th>hash par plante</th></tr></thead><tbody></tbody></table>
+<pre id="json" hidden></pre>
+<script type="module" src="/src/app/determinism-page.ts"></script>
+</body>
+</html>

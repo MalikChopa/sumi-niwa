@@ -1,0 +1,51 @@
+{
+  "note": "Valeurs de référence calculées sous Node (Vitest) par computeAllCases() ; à comparer au navigateur (determinism.html).",
+  "cases": [
+    {
+      "name": "F-3",
+      "garden": "14d49af9",
+      "plants": [
+        "58e2702a",
+        "7d8fdbc6"
+      ]
+    },
+    {
+      "name": "autoplant",
+      "garden": "2698d912",
+      "plants": [
+        "2698d912"
+      ]
+    },
+    {
+      "name": "cinq-especes",
+      "garden": "e22524af",
+      "plants": [
+        "fe28f10b",
+        "ef859cbf",
+        "3fdf302c",
+        "cd555d6d",
+        "81442682"
+      ]
+    },
+    {
+      "name": "bords",
+      "garden": "73dcdd91",
+      "plants": [
+        "e78ce826",
+        "7cea7b3f",
+        "9d883814",
+        "f6ed674a",
+        "58a37bb7",
+        "a2a03e3c"
+      ]
+    },
+    {
+      "name": "graine-nulle",
+      "garden": "169114e5",
+      "plants": [
+        "39fb1854",
+        "edc4a458"
+      ]
+    }
+  ]
+}

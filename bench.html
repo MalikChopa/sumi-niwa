@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<link rel="icon" href="data:,">
+<title>Jardin d'encre · mesure</title>
+<!-- Page de mesure (ARCHITECTURE 12.4) : bench.html (paliers forcés) et bench.html?mode=probe (sonde particules).
+     Rien n'est envoyé ; retirée ou rendue inerte en ligne (J6). -->
+<style>
+  html,body{margin:0;height:100%;background:#F3ECDD;color:#1E2430;font-family:Georgia,"Times New Roman",serif;overflow:hidden}
+  #stage{position:fixed;inset:0}
+  #stage canvas{display:block;width:100%;height:100%}
+  #panel{position:fixed;top:8px;left:8px;max-width:min(980px,calc(100vw - 16px));max-height:calc(100vh - 16px);overflow:auto;margin:0;padding:6px 10px;font:12px/1.45 ui-monospace,Consolas,monospace;background:rgba(243,236,221,.9);border:1px solid rgba(30,36,48,.2);z-index:9}
+  #panel pre{margin:0;white-space:pre-wrap}
+  #panel button{font:inherit;margin-top:6px;color:#1E2430;background:none;border:1px solid rgba(30,36,48,.45);border-radius:999px;padding:2px 12px;cursor:pointer}
+  #panel button[hidden]{display:none}
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<div id="panel"><pre id="out"></pre><button id="copy" type="button" hidden>Copier en JSON</button></div>
+<script type="module" src="/src/app/bench-entry.ts"></script>
+</body>
+</html>

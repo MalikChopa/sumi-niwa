@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#F3ECDD">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Crect width=%2716%27 height=%2716%27 fill=%27%23F3ECDD%27/%3E%3Ccircle cx=%278%27 cy=%278%27 r=%275%27 fill=%27%231E2430%27/%3E%3C/svg%3E">
+<title>Jardin d'encre</title>
+<style>
+  :root{--washi:#F3ECDD;--sumi:#1E2430;--erable:#B8402F}
+  html,body{margin:0;height:100%;background:var(--washi);color:var(--sumi);font-family:Georgia,"Times New Roman",serif;overflow:hidden}
+  #stage{position:fixed;inset:0}
+  #stage canvas{display:block;width:100%;height:100%}
+  /* J5 : la feuille a le focus clavier (Tab) ; contour de 2 px sumi à l'intérieur du bord, visible seulement au clavier */
+  #stage:focus{outline:none}
+  #stage:focus-visible{outline:2px solid var(--sumi);outline-offset:-8px}
+  /* mode contemplatif : aucune interface, pas même le contour de focus de la feuille */
+  html.contemplative #stage:focus-visible{outline:none}
+  /* Messages (refus, secours, noscript) : texte sumi sur washi uni. */
+  .msg{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.1rem;padding:2rem;box-sizing:border-box;text-align:center;line-height:1.55;font-size:1.05rem;overflow:auto}
+  .msg[hidden]{display:none}
+  .msg h1{font-weight:normal;font-size:1.6rem;margin:0;letter-spacing:.02em}
+  .msg p{margin:0;max-width:40rem}
+  .msg .en{opacity:.8;font-style:italic}
+  .msg ul{margin:0;padding:0;list-style:none;max-width:40rem}
+  .msg button{font:inherit;color:var(--sumi);background:none;border:1px solid rgba(30,36,48,.6);border-radius:999px;padding:.45rem 1.4rem;cursor:pointer}
+  .msg button:hover{background:rgba(30,36,48,.07)}
+  .msg button:focus-visible{outline:2px solid var(--sumi);outline-offset:2px}
+  /* Secours : si rien n'est prêt après RESCUE_DELAY_S (6 s), le message apparaît, sans JavaScript. */
+  #rescue{visibility:hidden;animation:rescue 0s linear 6s forwards;pointer-events:none}
+  @keyframes rescue{to{visibility:visible;pointer-events:auto}}
+  html.ready #rescue{display:none}
+  /* Version réduite : message discret, en bas, qui s'efface. */
+  /* J4 : au-dessus de la barre d'icônes (bas : 26 px, ≈ 50 px de haut ; deux lignes sous 480 px) */
+  #notice{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);max-width:calc(100vw - 2rem);padding:.4rem 1.1rem;border-radius:999px;background:rgba(243,236,221,.85);border:1px solid rgba(30,36,48,.14);font-size:.9rem;opacity:0;transition:opacity 1.2s ease;pointer-events:none}
+  #notice[hidden]{display:none}
+  #notice.on{opacity:1}
+  @media (max-width:480px){#notice{bottom:140px}}
+  @media (prefers-reduced-motion:reduce){#notice{transition:none}}
+</style>
+<noscript><style>#rescue{display:none}</style></noscript>
+</head>
+<body>
+<div id="stage"></div>
+
+<p id="notice" role="status" hidden></p>
+
+<section id="rescue" class="msg" role="status">
+  <h1>Le jardin tarde à s'ouvrir…</h1>
+  <p>Cela prend plus de temps que prévu. Recharge la page, ou ouvre-la dans un navigateur récent comme Chrome ou Edge.</p>
+  <p class="en">The garden is slow to open. Reload the page, or open it in a recent browser such as Chrome or Edge.</p>
+</section>
+
+<section id="refus" class="msg" hidden>
+  <h1>Ce navigateur ne peut pas ouvrir le jardin</h1>
+  <p>Ni WebGPU ni WebGL2 ne sont disponibles ici. Essaie un navigateur récent, avec l'accélération graphique activée.</p>
+  <p class="en">Neither WebGPU nor WebGL2 is available here. Try a recent browser with graphics acceleration turned on.</p>
+  <p>WebGPU est annoncé par ses éditeurs dans : Chrome et Edge 113+, Safari 26, Firefox 141+ (source : wiki gpuweb, liste du 2026-11-01). Ce jardin n'a pas été essayé dans tous ces navigateurs : l'annonce n'est pas une garantie.</p>
+  <p class="en">WebGPU is announced by its vendors in: Chrome and Edge 113+, Safari 26, Firefox 141+ (source: gpuweb wiki, list of 2026-11-01). This garden has not been tried in all of these browsers: the announcement is not a guarantee.</p>
+  <button id="retry" type="button">Réessayer · Retry</button>
+</section>
+
+<noscript>
+  <section class="msg">
+    <h1>Jardin d'encre a besoin de JavaScript</h1>
+    <p>Active JavaScript dans ton navigateur, puis recharge la page.</p>
+    <p class="en">Jardin d'encre needs JavaScript. Enable JavaScript in your browser, then reload the page.</p>
+    <p>WebGPU est annoncé par ses éditeurs dans : Chrome et Edge 113+, Safari 26, Firefox 141+ (source : wiki gpuweb, liste du 2026-11-01). Ce jardin n'a pas été essayé dans tous ces navigateurs : l'annonce n'est pas une garantie.</p>
+    <p class="en">WebGPU is announced by its vendors in: Chrome and Edge 113+, Safari 26, Firefox 141+ (source: gpuweb wiki, list of 2026-11-01). This garden has not been tried in all of these browsers: the announcement is not a guarantee.</p>
+  </section>
+</noscript>
+
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>
